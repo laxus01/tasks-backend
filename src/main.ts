@@ -5,17 +5,12 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Configurar CORS
-  const corsOrigins = process.env.CORS_ORIGIN?.split(',') || [
-    'http://localhost:8100',
-    'capacitor://localhost',
-    'http://localhost',
-  ];
-
+  // Configurar CORS - Aceptar todas las peticiones
   app.enableCors({
-    origin: corsOrigins,
+    origin: true, // Acepta todas las peticiones de cualquier origen
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-    credentials: false,
+    credentials: true, // Permite envío de cookies y credenciales
+    allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   });
 
   // Configurar validación global

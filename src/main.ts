@@ -1,12 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { AppModule } from './app.module';
-import * as crypto from 'crypto';
-
-// Ensure crypto is available globally for TypeORM
-if (!global.crypto) {
-  global.crypto = crypto as any;
-}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

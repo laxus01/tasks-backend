@@ -5,6 +5,12 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { TasksModule } from './tasks/tasks.module';
 import configuration from './config/configuration';
+import * as crypto from 'crypto';
+
+// Ensure crypto is available globally for TypeORM
+if (!global.crypto) {
+  global.crypto = crypto as any;
+}
 
 @Module({
   imports: [

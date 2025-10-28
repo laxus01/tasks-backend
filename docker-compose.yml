@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: todoapp-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: todoapp
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - todoapp-network
+
+  backend:
+    build: .
+    container_name: todoapp-backend
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: development
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_USERNAME: root
+      DB_PASSWORD: password
+      DB_DATABASE: todoapp
+      CORS_ORIGIN: http://localhost:8100,capacitor://localhost,http://localhost
+    depends_on:
+      - mysql
+    networks:
+      - todoapp-network
+    volumes:
+      - ./src:/app/src
+    command: npm run start:dev
+
+volumes:
+  mysql_data:
+
+networks:
+  todoapp-network:
+    driver: bridge

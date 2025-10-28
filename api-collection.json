@@ -1,0 +1,102 @@
+{
+  "info": {
+    "name": "To-Do List API",
+    "description": "Colección de endpoints para la API de To-Do List",
+    "version": "1.0.0"
+  },
+  "item": [
+    {
+      "name": "Health Check",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/health"
+      }
+    },
+    {
+      "name": "Get All Tasks",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/tasks"
+      }
+    },
+    {
+      "name": "Get Task by ID",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/tasks/{{taskId}}"
+      }
+    },
+    {
+      "name": "Create Task",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/tasks",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Nueva tarea\",\n  \"description\": \"Esta es una descripción de prueba\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Update Task",
+      "request": {
+        "method": "PUT",
+        "url": "http://localhost:3000/api/tasks/{{taskId}}",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Tarea actualizada\",\n  \"description\": \"Descripción actualizada\",\n  \"completed\": true\n}"
+        }
+      }
+    },
+    {
+      "name": "Toggle Task Complete",
+      "request": {
+        "method": "PATCH",
+        "url": "http://localhost:3000/api/tasks/{{taskId}}/toggle"
+      }
+    },
+    {
+      "name": "Delete Task",
+      "request": {
+        "method": "DELETE",
+        "url": "http://localhost:3000/api/tasks/{{taskId}}"
+      }
+    },
+    {
+      "name": "Get Changes Since",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/tasks/changes?since=2025-10-28T00:00:00.000Z"
+      }
+    },
+    {
+      "name": "Sync Tasks",
+      "request": {
+        "method": "POST",
+        "url": "http://localhost:3000/api/tasks/sync",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"lastSyncTimestamp\": \"2025-10-28T00:00:00.000Z\",\n  \"changes\": [\n    {\n      \"localId\": 1,\n      \"action\": \"create\",\n      \"data\": {\n        \"title\": \"Tarea desde sync\",\n        \"description\": \"Descripción desde sincronización\",\n        \"completed\": false,\n        \"updatedAt\": \"2025-10-28T12:00:00.000Z\"\n      }\n    }\n  ]\n}"
+        }
+      }
+    }
+  ]
+}

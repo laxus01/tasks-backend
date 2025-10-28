@@ -1,0 +1,19 @@
+import { IsString, IsBoolean, IsOptional, MinLength, MaxLength } from 'class-validator';
+
+export class UpdateTaskDto {
+  @IsOptional()
+  @IsString()
+  @MinLength(3, { message: 'El título debe tener al menos 3 caracteres' })
+  @MaxLength(255, { message: 'El título no puede exceder 255 caracteres' })
+  title?: string;
+
+  @IsOptional()
+  @IsString()
+  @MinLength(5, { message: 'La descripción debe tener al menos 5 caracteres' })
+  @MaxLength(5000, { message: 'La descripción no puede exceder 5000 caracteres' })
+  description?: string;
+
+  @IsOptional()
+  @IsBoolean()
+  completed?: boolean;
+}

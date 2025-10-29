@@ -23,7 +23,7 @@ Backend REST API para la aplicación To-Do List desarrollada con **NestJS + Type
 ### 1. Clonar o navegar al proyecto
 
 ```bash
-cd todo-backend
+cd tasks-backend
 ```
 
 ### 2. Instalar dependencias
@@ -54,26 +54,40 @@ CREATE DATABASE IF NOT EXISTS todoapp
 
 ### 4. Configurar variables de entorno
 
-Copiar el archivo `.env.example` a `.env` y ajustar los valores:
+El proyecto utiliza archivos de entorno específicos según el ambiente:
+- `.env.development` - Para desarrollo
+- `.env.production` - Para producción
+
+Copiar el archivo `.env.example` al archivo correspondiente:
 
 ```bash
-cp .env.example .env
+# Para desarrollo
+cp .env.example .env.development
+
+# Para producción
+cp .env.example .env.production
 ```
 
-Editar `.env`:
+Editar el archivo correspondiente:
 
 ```env
-PORT=3000
+# Application
 NODE_ENV=development
+PORT=3000
 
+# Database
 DB_HOST=localhost
 DB_PORT=3306
 DB_USERNAME=root
 DB_PASSWORD=tu_contraseña_aqui
 DB_DATABASE=todoapp
 
-CORS_ORIGIN=http://localhost:8100,capacitor://localhost,http://localhost
+# CORS (Nota: actualmente el backend acepta todas las peticiones)
+CORS_ENABLED=true
+CORS_ORIGIN=http://localhost:8100
 ```
+
+**Nota importante sobre CORS:** Actualmente el backend está configurado para aceptar peticiones de **cualquier origen** (`origin: true` en `main.ts`). Las variables `CORS_ENABLED` y `CORS_ORIGIN` están definidas pero no se utilizan en el código actual.
 
 ### 5. Iniciar el servidor
 
@@ -238,6 +252,8 @@ Respuesta:
 
 ```
 src/
+├── config/
+│   └── configuration.ts      # Configuración centralizada
 ├── tasks/
 │   ├── dto/
 │   │   ├── create-task.dto.ts
@@ -249,6 +265,7 @@ src/
 │   ├── tasks.service.ts
 │   └── tasks.module.ts
 ├── app.controller.ts
+├── app.controller.spec.ts
 ├── app.module.ts
 ├── app.service.ts
 └── main.ts
@@ -280,53 +297,44 @@ npm run format         # Formatear código con Prettier
 
 ## 🐳 Docker (Opcional)
 
-Crear archivo `docker-compose.yml`:
+El proyecto incluye configuración completa de Docker con `docker-compose.yml`:
 
-```yaml
-version: '3.8'
+**Características:**
+- Contenedor MySQL 8.0 con inicialización automática
+- Contenedor backend con hot-reload para desarrollo
+- Red personalizada para comunicación entre servicios
+- Volúmenes persistentes para la base de datos
 
-services:
-  mysql:
-    image: mysql:8.0
-    environment:
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: todoapp
-    ports:
-      - "3306:3306"
-    volumes:
-      - mysql_data:/var/lib/mysql
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  backend:
-    build: .
-    ports:
-      - "3000:3000"
-    environment:
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_USERNAME: root
-      DB_PASSWORD: password
-      DB_DATABASE: todoapp
-    depends_on:
-      - mysql
-
-volumes:
-  mysql_data:
-```
-
-Ejecutar:
+**Ejecutar con Docker:**
 
 ```bash
+# Iniciar todos los servicios
 docker-compose up -d
+
+# Ver logs
+docker-compose logs -f
+
+# Detener servicios
+docker-compose down
+
+# Detener y eliminar volúmenes
+docker-compose down -v
 ```
+
+**Configuración incluida:**
+- MySQL en puerto 3306
+- Backend en puerto 3000
+- Base de datos inicializada con `database/init.sql`
+- Hot-reload habilitado en modo desarrollo
 
 ## 🔒 Seguridad
 
 - ✅ Validación de datos con class-validator
-- ✅ CORS configurado
-- ✅ Sanitización de inputs
+- ✅ CORS habilitado (actualmente acepta todos los orígenes - ajustar para producción)
+- ✅ Sanitización de inputs mediante ValidationPipe
 - ✅ Variables de entorno para configuración sensible
 - ✅ Soft delete para no perder datos
+- ⚠️ **Recomendación**: Configurar CORS restrictivo en producción modificando `src/main.ts`
 
 ## 🚀 Despliegue
 
@@ -353,13 +361,26 @@ CORS_ORIGIN=https://tu-app.com
 
 ## 📝 Notas Importantes
 
-1. **Sincronización**: TypeORM está configurado con `synchronize: true` solo en desarrollo. En producción, usar migraciones.
+1. **Configuración Automática por Ambiente**: El proyecto ajusta automáticamente su configuración según `NODE_ENV`:
+   - **Desarrollo**: `synchronize: true`, `logging: true` (TypeORM sincroniza automáticamente el esquema)
+   - **Producción**: `synchronize: false`, `logging: false` (usar migraciones para cambios de esquema)
 
-2. **Timezone**: La base de datos está configurada en UTC (`timezone: 'Z'`).
+2. **Archivos de Entorno**: El sistema carga automáticamente:
+   - `.env.development` cuando `NODE_ENV !== 'production'`
+   - `.env.production` cuando `NODE_ENV === 'production'`
 
-3. **Soft Delete**: Las tareas eliminadas no se borran físicamente, solo se marca `deleted_at`.
+3. **CORS**: Actualmente configurado para aceptar **todas las peticiones** (`origin: true`). Para restringir orígenes en producción, modificar `src/main.ts`.
 
-4. **UUIDs**: Se usan UUIDs v4 para los IDs de las tareas.
+4. **Timezone**: La base de datos está configurada en UTC (`timezone: 'Z'`).
+
+5. **Soft Delete**: Las tareas eliminadas no se borran físicamente, solo se marca `deleted_at`.
+
+6. **UUIDs**: Se usan UUIDs v4 para los IDs de las tareas.
+
+7. **Validación Global**: Todos los endpoints tienen validación automática con `class-validator`:
+   - `whitelist: true` - Elimina propiedades no definidas en los DTOs
+   - `forbidNonWhitelisted: true` - Rechaza peticiones con propiedades extras
+   - `transform: true` - Transforma los payloads a instancias de DTO
 
 ## 🤝 Integración con Frontend
 
